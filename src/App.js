@@ -1,10 +1,10 @@
 import GameBoard from "./GameBoard";
-import Home from "./Home";
+// import Home from "./Home";
 
 function App() {
   return (
     <div className="App">
-      <Home />
+      <GameBoard />
     </div>
   );
 }
