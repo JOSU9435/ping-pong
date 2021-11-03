@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 
 const GameBoard = () => {
 
@@ -6,6 +7,12 @@ const GameBoard = () => {
     const PLAYER_COLOR='green';
     const BALL_COLOR='red';
 
+    let gameStart=false;
+
+    // connection to server
+    const socket=io('http://localhost:4000');
+
+    // state of the current game
     const gameState = {
         player: {
             pos: {
@@ -13,13 +20,23 @@ const GameBoard = () => {
                 y: 30,
             },
             vel: {
-                y: 1,
-            }
+                y: 0,
+            },
+            dimensions: {
+                width: 1.5,
+                height: 10,
+            },
         },
 
         ball: {
-            x: 50,
-            y: 30,
+            pos:{
+                x: 50,
+                y: 30,
+            },
+            vel:{
+                x: 1,
+                y: 1,
+            },
             radius: 1,
         },
         
@@ -45,12 +62,23 @@ const GameBoard = () => {
         contextRef.current=context;
     }
 
-    // document.addEventListener('keydown',(e) => {
-    //     console.log(e.keyCode);
-    // })
+
+    // sending key input to server;
+    document.addEventListener('keydown',(e) => {
+        if(e.keyCode==38 || e.keyCode==40){
+            socket.emit('keydown',e.keyCode);
+        }
+    });
+
+    document.addEventListener('keyup',(e) => {
+        if(e.keyCode==38 || e.keyCode==40){
+            socket.emit('keyup',e.keyCode);
+        }
+    });
     
     useEffect(() => {
         init();
+        gameStart=true;
         renderGame(gameState);
     },[]);
 
@@ -69,26 +97,36 @@ const GameBoard = () => {
         
         context.fillStyle=BALL_COLOR;
         context.beginPath();
-        console.log(ball.x,ball.y,oneUnit);
-        context.arc(ball.x * oneUnit,ball.y * oneUnit,ball.radius * oneUnit,0,2*Math.PI,0);
+        context.arc(ball.pos.x * oneUnit,ball.pos.y * oneUnit,ball.radius * oneUnit,0,2*Math.PI,0);
         context.fill();
 
         renderPlayer(player, oneUnit);
     }
 
     const renderPlayer = (player, oneUnit) => {
-        const canvas=canvasRef.current;
         const context=contextRef.current;
 
-        const {pos} = player;
-        const playerDimensions = {
-            width: 1.5,
-            height: 10,
-        }
+        const {pos, dimensions} = player;
 
         context.fillStyle=PLAYER_COLOR;
-        context.fillRect(pos.x * oneUnit, pos.y * oneUnit, playerDimensions.width * oneUnit, playerDimensions.height * oneUnit);
+        context.fillRect(pos.x * oneUnit, pos.y * oneUnit, dimensions.width * oneUnit, dimensions.height * oneUnit);
     }
+
+    const handleInit = (data) => {
+        console.log(data);
+    }
+
+    const handleGameState = (gameState) => {
+        // gameState=JSON.parse(gameState);
+        if(!gameStart){
+            return;
+        }
+        requestAnimationFrame(() => renderGame(gameState));
+    }
+
+    // listening to server for data
+    socket.on('init',handleInit);
+    socket.on('gameState', handleGameState);
 
     return (  
         <div>
