@@ -13,7 +13,7 @@ const createGameState = () => {
             },
             dimensions: {
                 width: 1.5,
-                height: 10,
+                height: 15,
             },
         },
         ball: {
@@ -24,6 +24,7 @@ const createGameState = () => {
             vel:{
                 x: 0.5,
                 y: 0.5,
+                speed: 0.7071,
             },
             radius: 1,
         },
@@ -49,12 +50,42 @@ const gameLoop = (state) => {
         player.pos.y += player.vel.y;
     }
 
-    if(ball.pos.x - ball.radius <= 0 || ball.pos.x + ball.radius >= GRID_X){
+    // wallcollision
+
+    if(ball.pos.x - player.dimensions.width - ball.radius <= 0){
         ball.vel.x *= -1;
     }
 
     if(ball.pos.y - ball.radius <= 0 || ball.pos.y + ball.radius >= GRID_Y){
         ball.vel.y *= -1;
+    }
+
+    // player's tile collision
+
+    if(
+        ball.pos.y < player.pos.y + player.dimensions.height &&
+        ball.pos.y > player.pos.y &&
+        ball.pos.x + ball.radius >= player.pos.x &&
+        ball.pos.x + ball.radius < player.pos.x + player.dimensions.width
+    ){
+
+        let collisionPoint = ball.pos.y - (player.pos.y + player.dimensions.height/2);
+
+        collisionPoint /= player.dimensions.height / 2;
+
+        let angle= (collisionPoint * Math.PI) / 3;
+
+        // console.log(angle);
+
+        ball.vel.y = ball.vel.speed * Math.sin(angle);
+        ball.vel.x = -ball.vel.speed * Math.cos(angle);
+        
+        return 0;
+    }
+
+
+    if(ball.pos.x + player.dimensions.width + ball.radius > GRID_X){
+        return 1;
     }
 
     return 0;

@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
+import Home from "./Home";
 
 const GameBoard = () => {
 
@@ -7,7 +8,7 @@ const GameBoard = () => {
     const PLAYER_COLOR='green';
     const BALL_COLOR='red';
 
-    let gameStart=false;
+    const [gameStart,setGameStart] = useState(false);
 
     // connection to server
     const socket=io('http://localhost:4000');
@@ -34,8 +35,9 @@ const GameBoard = () => {
                 y: 30,
             },
             vel:{
-                x: 1,
-                y: 1,
+                x: 0.5,
+                y: 0,
+                speed: 0.7071,
             },
             radius: 1,
         },
@@ -48,6 +50,7 @@ const GameBoard = () => {
     const contextRef=useRef(null);
 
     const init=() => {
+        setGameStart(true);
         const canvas=canvasRef.current;
         canvas.height=600;
         canvas.width=1000;
@@ -77,9 +80,8 @@ const GameBoard = () => {
     });
     
     useEffect(() => {
-        init();
-        gameStart=true;
-        renderGame(gameState);
+        // init();
+        // renderGame(gameState);
     },[]);
 
     const renderGame = (state) => {
@@ -124,12 +126,22 @@ const GameBoard = () => {
         requestAnimationFrame(() => renderGame(gameState));
     }
 
+    const handleGameOver = (win) => {
+        // if(playerNo==win){
+
+        // }
+        // alert('gameover');
+        console.log('gameover');
+    }
+
     // listening to server for data
     socket.on('init',handleInit);
     socket.on('gameState', handleGameState);
+    socket.on('gameOver', handleGameOver);
 
-    return (  
+    return (
         <div>
+            {!gameStart && <Home socket={socket} init={init}/>}
             <canvas id="gameBoard" ref={canvasRef}></canvas>
         </div>
     );
