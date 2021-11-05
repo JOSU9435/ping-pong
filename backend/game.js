@@ -1,9 +1,10 @@
 const {GRID_X, GRID_Y} = require('./constants');
+const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver} = require('./utils');
 
 const createGameState = () => {
 
     return {
-        player: {
+        players: [{
             pos: {
                 x: 98.5,
                 y: 30,
@@ -13,9 +14,22 @@ const createGameState = () => {
             },
             dimensions: {
                 width: 1.5,
-                height: 10,
+                height: 15,
             },
         },
+        {
+            pos: {
+                x: 0,
+                y: 30,
+            },
+            vel: {
+                y: 0,
+            },
+            dimensions: {
+                width: 1.5,
+                height: 15,
+            },
+        }],
         ball: {
             pos:{
                 x: 50,
@@ -24,6 +38,7 @@ const createGameState = () => {
             vel:{
                 x: 0.5,
                 y: 0.5,
+                speed: 0.7071,
             },
             radius: 1,
         },
@@ -35,27 +50,38 @@ const createGameState = () => {
 
 const gameLoop = (state) => {
 
-    const {player,ball}=state;
-
+    const {players,ball}=state;
+    
     // updating ball position
     ball.pos.x += ball.vel.x;
     ball.pos.y += ball.vel.y;
 
-    // updating player position 
+    // updating players positions 
+
+    updatePlayerPos(players[0]);
+    updatePlayerPos(players[1]);
+    // player 1 tile collision
     
-    if(player.vel.y > 0 && player.pos.y + player.dimensions.height < GRID_Y){
-        player.pos.y += player.vel.y;
-    }else if(player.vel.y < 0 && player.pos.y > 0){
-        player.pos.y += player.vel.y;
+    if(playerOneAndBallCollision(players[0],ball) ||
+    playeTworAndBallCollision(players[1],ball)){
+        return 0;
+    }
+   
+    // player 2 tile collsion
+    
+   
+
+    // check for gameover
+
+    const isGameOver = checkGameOver(players[0].dimensions.width, ball);
+
+    if(isGameOver){
+        return isGameOver;
     }
 
-    if(ball.pos.x - ball.radius <= 0 || ball.pos.x + ball.radius >= GRID_X){
-        ball.vel.x *= -1;
-    }
+    // wallcollision
 
-    if(ball.pos.y - ball.radius <= 0 || ball.pos.y + ball.radius >= GRID_Y){
-        ball.vel.y *= -1;
-    }
+    checkWallCollision(ball);
 
     return 0;
 }
