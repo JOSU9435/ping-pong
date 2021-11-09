@@ -4,7 +4,7 @@ import Home from "./Home";
 
 const GameBoard = () => {
 
-    const GB_COLOR='#231F20';
+    const GB_COLOR='#9A8C98';
     const PLAYER_ONE_COLOR='green';
     const PLAYER_TWO_COLOR='purple';
     const BALL_COLOR='red';
@@ -32,6 +32,7 @@ const GameBoard = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
         },
         {
             pos: {
@@ -45,6 +46,7 @@ const GameBoard = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
         }],
 
         ball: {

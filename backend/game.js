@@ -16,6 +16,7 @@ const createGameState = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
         },
         {
             pos: {
@@ -29,6 +30,7 @@ const createGameState = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
         }],
         ball: {
             pos:{
