@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Home from "./Home";
+import ScoreBoard from "./ScoreBoard";
 
 const GameBoard = () => {
 
@@ -11,6 +12,7 @@ const GameBoard = () => {
 
     const [gameStart,setGameStart] = useState(false);
     const [gameCode,setGameCode] = useState('');
+    const [playersState,setPlayerState] = useState(null);
     
     let gamebegin=false;
     let playerNum;
@@ -75,7 +77,7 @@ const GameBoard = () => {
         canvas.height=600;
         canvas.width=1000;
         canvas.style.width='1000px';
-        canvas.style.height='600px'
+        canvas.style.height='600px';
         
         const context=canvas.getContext('2d');
         context.fillStyle=GB_COLOR;
@@ -88,9 +90,11 @@ const GameBoard = () => {
     }
 
     const reset = () => {
-        playerNum = null;
-        setGameCode('');
-        setGameStart('false');
+        const canvas = canvasRef.current;
+        canvas.height=0;
+        canvas.width=0;
+        // setGameCode('');
+        setGameStart(false);
         gamebegin=false;
     }
 
@@ -106,11 +110,6 @@ const GameBoard = () => {
             socket.emit('keyup',e.keyCode);
         }
     });
-    
-    // useEffect(() => {
-    //     init();
-    //     renderGame(gameState);
-    // },[]);
 
     const renderGame = (state) => {
         const canvas=canvasRef.current;
@@ -132,6 +131,10 @@ const GameBoard = () => {
 
         renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
         renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
+        
+        // if(!playersState){
+            setPlayerState(players);
+        // }
     }
 
     const renderPlayer = (player, oneUnit, colour) => {
@@ -145,7 +148,6 @@ const GameBoard = () => {
 
     const handleInit = (num) => {
         playerNum=num;
-        console.log(num)
     }
 
     const handleGameState = (gameState) => {
@@ -166,8 +168,7 @@ const GameBoard = () => {
         }else{
             alert('you lose');
         }
-        gamebegin = false;
-        setGameStart(false);
+        reset();
     }
 
     const handleGameCode = (code) => {
@@ -193,10 +194,13 @@ const GameBoard = () => {
     socket.on('fullGame', handleFullGame);
 
     return (
-        <div id="gameBoard">
+        <div>
+            <ScoreBoard playersState = {playersState}/>
+            <div id="gameBoard">
+                {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
+                <canvas ref={canvasRef}></canvas>
+            </div>
             {!gameStart && <Home socket={socket} init={init}/>}
-            {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
-            <canvas ref={canvasRef}></canvas>
         </div>
     );
 }

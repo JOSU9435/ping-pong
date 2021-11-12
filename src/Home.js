@@ -3,35 +3,19 @@ import { useRef } from "react/cjs/react.development";
 
 const Home = ({socket,init}) => {
 
-    const BG_PRIMARY = '#22223B';
-    const BG_SECONDARY = '#4A4E69';
-    const TEXT_PRIMARY = '#F2E9E4';
-    const TEXT_SECONDARY = '#9A8C98';
-
-    const [joinToggle, setJoinToggle] = useState({
-        color: BG_PRIMARY,
-        backgroundColor: TEXT_SECONDARY,
-        fontWeight: 'bold',
-    });
-
-    const [createToggle, setCreateToggle] = useState({
-        color: TEXT_PRIMARY,
-        backgroundColor: BG_SECONDARY,
-        fontWeight: 'unset',
-    });
-
     const [gameCode,setGameCode] = useState('');
     const [playerName, setPlayerName] = useState('')
     const [gameTab, setGameTab] = useState(true);
 
-    const handleCreateGame = () => {
-        socket.emit('createGame');
+    const handleCreateGame = (e) => {
+        e.preventDefault();
+        socket.emit('createGame', playerName);
         init();
     }
 
     const handleJoinGame = (e) => {
         e.preventDefault();
-        socket.emit('joinGame', gameCode);
+        socket.emit('joinGame', {gameCode, playerName});
         init();
     }
 

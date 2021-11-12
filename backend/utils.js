@@ -1,4 +1,4 @@
-const {GRID_X, GRID_Y} = require('./constants');
+const {GRID_X, GRID_Y, WIN_SCORE} = require('./constants');
 
 const makeId = (length) => {
 
@@ -71,12 +71,33 @@ const playeTworAndBallCollision = (player,ball) => {
     }
 }
 
-const checkGameOver = (width, ball) => {
+const checkRoundOver = (state) => {
+
+    const {players, ball} = state;
     
-    if(ball.pos.x + width + ball.radius >= GRID_X){
-        return 2;
-    }else if(ball.pos.x - width - ball.radius <= 0){
+    if(ball.pos.x + players[0].dimensions.width + ball.radius >= GRID_X){
+        players[1].score = players[1].score + 1;
+        ball.pos.x = 50;
+        ball.pos.y = 30;
+        ball.vel.x = 0.5;
+        ball.vel.y = 0.5;
+        ball.vel.speed = 0.7071;
+    }else if(ball.pos.x - players[0].dimensions.width - ball.radius <= 0){
+        players[0].score = players[0].score + 1;
+        ball.pos.x = 50;
+        ball.pos.y = 30;
+        ball.vel.x = 0.5;
+        ball.vel.y = 0.5;
+        ball.vel.speed = 0.7071;
+    }
+}
+
+const checkGameOver = (players) => {
+
+    if(players[0].score == WIN_SCORE){
         return 1;
+    }else if(players[1].score == WIN_SCORE){
+        return 2;
     }
 }
 
@@ -86,5 +107,6 @@ module.exports = {
     checkWallCollision,
     playerOneAndBallCollision,
     playeTworAndBallCollision,
+    checkRoundOver,
     checkGameOver,
 }

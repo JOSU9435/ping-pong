@@ -137,3 +137,25 @@ form#startGame button:hover{
 }
 
 /* SCORE BOARD */
+
+#scoreBoard{
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+#scoreBoard > div{
+  background-color: var(--bg-secondary);
+  height: 8rem;
+  min-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 0.5rem;
+}
+
+#scoreBoard > div > div{
+  font-size: 2rem;
+  text-align: center;
+}
