@@ -1,5 +1,5 @@
 const {GRID_X, GRID_Y} = require('./constants');
-const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver} = require('./utils');
+const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver} = require('./utils');
 
 const createGameState = () => {
 
@@ -16,6 +16,8 @@ const createGameState = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
+            score: 0,
         },
         {
             pos: {
@@ -29,6 +31,8 @@ const createGameState = () => {
                 width: 1.5,
                 height: 15,
             },
+            name: '',
+            score: 0,
         }],
         ball: {
             pos:{
@@ -60,20 +64,18 @@ const gameLoop = (state) => {
 
     updatePlayerPos(players[0]);
     updatePlayerPos(players[1]);
-    // player 1 tile collision
+    // players tile collision
     
     if(playerOneAndBallCollision(players[0],ball) ||
     playeTworAndBallCollision(players[1],ball)){
         return 0;
     }
-   
-    // player 2 tile collsion
-    
-   
+
+    checkRoundOver(state);
 
     // check for gameover
 
-    const isGameOver = checkGameOver(players[0].dimensions.width, ball);
+    const isGameOver = checkGameOver(players);
 
     if(isGameOver){
         return isGameOver;

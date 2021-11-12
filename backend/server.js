@@ -14,7 +14,7 @@ const clientRooms = {};
 io.on('connection', (client) => {
 
     // code for creating game
-    client.on('createGame',() => {
+    client.on('createGame',(playerName) => {
         const roomName = makeId(6);
         clientRooms[client.id]=roomName;
         client.emit('gameCode', roomName);
@@ -22,13 +22,12 @@ io.on('connection', (client) => {
         state[roomName] = createGameState();
         client.join(roomName);
         client.playerNo = 1;
-        console.log(io.sockets.adapter.rooms);
-        console.log(clientRooms)
+        state[roomName].players[0].name = playerName;
         client.emit('init', 1);
     });
 
     // code for joining game
-    client.on('joinGame', (gameCode) => {
+    client.on('joinGame', ({gameCode, playerName}) => {
 
         const room = io.sockets.adapter.rooms.get(gameCode);
 
@@ -50,11 +49,10 @@ io.on('connection', (client) => {
 
         client.join(gameCode);
         client.playerNo = 2;
+        state[gameCode].players[1].name = playerName;
 
         client.emit('init', 2);
-
-        console.log(io.sockets.adapter.rooms);
-
+        
         startGameInterval(gameCode);
     });
 

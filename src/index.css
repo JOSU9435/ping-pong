@@ -1,9 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 :root{
   font-size: 16px;
+  --text-primary:#F2E9E4;
+  --text-secondary:#9A8C98;
+
+  --bg-primary: #22223B;
+  --bg-secondary:#4A4E69;
+  --bg-item:#C9ADA7;
+  
+  background-color: var(--bg-primary);
 }
 
 *{
   margin: 0;
+  font-family: Roboto;
+  color: var(--text-primary);
+  font-size: 1rem;
 }
 
 #gameBoard{
@@ -14,15 +27,135 @@
 }
 
 #initialScreen{
-
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
-  z-index: 1;
-  background-color: blueviolet;
+  width: 30rem;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
 }
 
-#initialScreen *{
+#tabChange{
+  height: 4rem;
+  width: 100%;
+  display: flex;
+}
+
+#tabChange *{
+  flex-grow: 1;
+  height: 100%;
+  text-align: center;
+  line-height: 4rem;
+  font-size: 1.25rem;
+  border-bottom: 0.15rem solid var(--text-secondary);
+  transition:  0.2s;
+  cursor: pointer;
+}
+
+
+.activeTabStyles{
+  color: var(--bg-primary);
+  font-weight: bold;
+  background-color: var(--text-secondary);
+}
+
+#joinGame{
+  border-radius: 0.5rem 0 0 0;
+}
+
+#createGame{
+  border-radius: 0 0.5rem 0 0;
+}
+
+#joinGame:hover{
+  background-color: var(--text-secondary);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+#createGame:hover{
+  background-color: var(--text-secondary);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+form#startGame {
+  display: flex;
+  min-width: 25rem;
+  height: 15rem;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+form#startGame label, form#startGame input, form#startGame button {
   display: block;
+  border: 0;
+}
+
+form#startGame label{
+  padding: 0.25rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+form#startGame input{
+  font-size:  2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--bg-primary);
+  text-align: center;
+}
+
+form#startGame input:focus{
+  outline: none;
+}
+
+form#startGame input::-webkit-input-placeholder{
+  opacity: 0.7;
+  text-align: center;
+}
+
+form#startGame button{
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  background-color: var(--bg-primary);
+  transition: 0.3s;
+}
+
+form#startGame button:hover{
+  cursor: pointer;
+  background-color: var(--bg-item);
+  color: var(--bg-primary);
+}
+
+/* SCORE BOARD */
+
+#scoreBoard{
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+#scoreBoard > div{
+  background-color: var(--bg-secondary);
+  height: 8rem;
+  min-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 0.5rem;
+}
+
+#scoreBoard > div > div{
+  font-size: 2rem;
+  text-align: center;
 }
