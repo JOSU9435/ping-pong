@@ -3,7 +3,10 @@ import { io } from "socket.io-client";
 import Home from "./Home";
 import ScoreBoard from "./ScoreBoard";
 
+
 const GameBoard = () => {
+    // connection to server
+    const socket=io('http://localhost:4000');
 
     const GB_COLOR='#9A8C98';
     const PLAYER_ONE_COLOR='green';
@@ -20,9 +23,9 @@ const GameBoard = () => {
     
     let gamebegin=false;
     let playerNum;
-
-    // connection to server
-    const socket=io('http://localhost:4000');
+    let isPlayerNameStored=false;
+    let playerOneScore=0;
+    let playerTwoScore=0;
 
     // state of the current game
     const gameState = {
@@ -136,19 +139,23 @@ const GameBoard = () => {
         renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
         renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
         
-        if(!playerNames){
+        if(!isPlayerNameStored){
             setPlayerNames({
                 one: players[0].name,
                 two: players[1].name,
             });
+            isPlayerNameStored = true;
+            console.log(playerNum);
         }
 
-        if(playerScores.one != players[0].score || playerScores.two != players[1].score){
-            // setPlayerScores({
-            //     one: players[0].score,
-            //     two: players[1].score,
-            // });
-            console.log('lol');
+        if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
+            setPlayerScores({
+                one: players[0].score,
+                two: players[1].score,
+            });
+            playerOneScore = players[0].score;
+            playerTwoScore = players[1].score;
+            console.log(playerNum);
         }
     }
 
@@ -210,7 +217,7 @@ const GameBoard = () => {
 
     return (
         <div>
-            {/* {gameStart && <ScoreBoard playerNames = {playerNames} playerScores = {playerScores}/>} */}
+            {gameStart && <ScoreBoard playerNames = {playerNames} playerScores = {playerScores}/>}
             <div id="gameBoard">
                 {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
                 <canvas ref={canvasRef}></canvas>
