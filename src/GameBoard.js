@@ -12,7 +12,11 @@ const GameBoard = () => {
 
     const [gameStart,setGameStart] = useState(false);
     const [gameCode,setGameCode] = useState('');
-    const [playersState,setPlayerState] = useState(null);
+    const [playerNames,setPlayerNames] = useState(null);
+    const [playerScores,setPlayerScores] = useState({
+        one: 0,
+        two: 0,
+    });
     
     let gamebegin=false;
     let playerNum;
@@ -74,10 +78,10 @@ const GameBoard = () => {
     const init=() => {
         setGameStart(true);
         const canvas=canvasRef.current;
-        canvas.height=600;
-        canvas.width=1000;
-        canvas.style.width='1000px';
-        canvas.style.height='600px';
+        canvas.height=300;
+        canvas.width=500;
+        // canvas.style.width='1000px';
+        // canvas.style.height='600px';
         
         const context=canvas.getContext('2d');
         context.fillStyle=GB_COLOR;
@@ -132,9 +136,20 @@ const GameBoard = () => {
         renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
         renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
         
-        // if(!playersState){
-            setPlayerState(players);
-        // }
+        if(!playerNames){
+            setPlayerNames({
+                one: players[0].name,
+                two: players[1].name,
+            });
+        }
+
+        if(playerScores.one != players[0].score || playerScores.two != players[1].score){
+            // setPlayerScores({
+            //     one: players[0].score,
+            //     two: players[1].score,
+            // });
+            console.log('lol');
+        }
     }
 
     const renderPlayer = (player, oneUnit, colour) => {
@@ -195,7 +210,7 @@ const GameBoard = () => {
 
     return (
         <div>
-            <ScoreBoard playersState = {playersState}/>
+            {/* {gameStart && <ScoreBoard playerNames = {playerNames} playerScores = {playerScores}/>} */}
             <div id="gameBoard">
                 {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
                 <canvas ref={canvasRef}></canvas>
