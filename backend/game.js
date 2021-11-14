@@ -36,12 +36,12 @@ const createGameState = () => {
         }],
         ball: {
             pos:{
-                x: 50,
+                x: 97.5,
                 y: 30,
             },
             vel:{
-                x: 0.5,
-                y: 0.5,
+                x: 0,
+                y: 0,
                 speed: 0.7071,
             },
             radius: 1,
@@ -56,18 +56,19 @@ const createGameState = () => {
 const gameLoop = (state) => {
 
     const {players,ball,isRoundActive}=state;
+
+    // code to update state when round is not in progress
+    
+    if(!isRoundActive){
+        updateBallPosWithPlayer(players, ball, state.servingPlayer);
+        updatePlayerPos(players[0]);
+        updatePlayerPos(players[1]);
+        return 0;
+    }
+    
     // updating ball position
     ball.pos.x += ball.vel.x;
     ball.pos.y += ball.vel.y;
-    // console.log('hello');
-    
-    // if(!isRoundActive){
-    //     updateBallPosWithPlayer(players, ball, state.servingPlayer);
-    //     updatePlayerPos(players[0]);
-    //     updatePlayerPos(players[1]);
-    //     // console.log('round');
-    //     return 0;
-    // }
 
     // updating players positions 
     updatePlayerPos(players[0]);
@@ -77,7 +78,6 @@ const gameLoop = (state) => {
     
     if(playerOneAndBallCollision(players[0],ball) ||
     playeTworAndBallCollision(players[1],ball)){
-        // console.log('hello2');
         return 0;
     }
 

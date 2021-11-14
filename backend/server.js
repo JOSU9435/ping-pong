@@ -67,7 +67,7 @@ io.on('connection', (client) => {
 
         if(!gameState.isRoundActive && keycode == 32){
             if(client.playerNo == gameState.servingPlayer){
-                HitBall(gameState.ball);
+                HitBall(gameState.ball, gameState.servingPlayer);
                 gameState.isRoundActive = true;
             }
             
