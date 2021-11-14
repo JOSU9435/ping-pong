@@ -5,8 +5,8 @@ const io=require('socket.io')({
 });
 
 const {createGameState, gameLoop, getUpdatedVelocity} = require('./game');
-const {FRAME_RATE} = require('./constants');
-const {makeId} = require('./utils');
+const {FRAME_RATE, GRID_X} = require('./constants');
+const {makeId, HitBall} = require('./utils');
 
 const state = {};
 const clientRooms = {};
@@ -63,7 +63,14 @@ io.on('connection', (client) => {
             return;
         }
 
-        if(! roomName){
+        const gameState = state[roomName];
+
+        if(!gameState.isRoundActive && keycode == 32){
+            if(client.playerNo == gameState.servingPlayer){
+                HitBall(gameState.ball);
+                gameState.isRoundActive = true;
+            }
+            
             return;
         }
 
@@ -71,7 +78,7 @@ io.on('connection', (client) => {
             const velocity=getUpdatedVelocity(keycode);
 
             if(velocity){
-                state[roomName].players[client.playerNo - 1].vel.y=velocity;
+                gameState.players[client.playerNo - 1].vel.y=velocity;
             }
         }
     });
@@ -83,10 +90,12 @@ io.on('connection', (client) => {
             return;
         }
 
-        if(keycode == 38 && state[roomName].players[client.playerNo - 1].vel.y == -1){
-            state[roomName].players[client.playerNo - 1].vel.y=0;
-        }else if(keycode == 40 && state[roomName].players[client.playerNo - 1].vel.y == 1){
-            state[roomName].players[client.playerNo - 1].vel.y=0;
+        const gameState = state[roomName];
+
+        if(keycode == 38 && gameState.players[client.playerNo - 1].vel.y == -1){
+            gameState.players[client.playerNo - 1].vel.y=0;
+        }else if(keycode == 40 && gameState.players[client.playerNo - 1].vel.y == 1){
+            gameState.players[client.playerNo - 1].vel.y=0;
         }
     });    
 });

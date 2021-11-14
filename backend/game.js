@@ -1,5 +1,5 @@
 const {GRID_X, GRID_Y} = require('./constants');
-const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver} = require('./utils');
+const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver, updateBallPosWithPlayer} = require('./utils');
 
 const createGameState = () => {
 
@@ -7,7 +7,7 @@ const createGameState = () => {
         players: [{
             pos: {
                 x: 98.5,
-                y: 30,
+                y: 22.5,
             },
             vel: {
                 y: 0,
@@ -22,7 +22,7 @@ const createGameState = () => {
         {
             pos: {
                 x: 0,
-                y: 30,
+                y: 22.5,
             },
             vel: {
                 y: 0,
@@ -46,7 +46,8 @@ const createGameState = () => {
             },
             radius: 1,
         },
-        
+        isRoundActive: false,
+        servingPlayer: 1,
         gridX: GRID_X,
         gridY: GRID_Y,
     };
@@ -54,20 +55,29 @@ const createGameState = () => {
 
 const gameLoop = (state) => {
 
-    const {players,ball}=state;
-    
+    const {players,ball,isRoundActive}=state;
     // updating ball position
     ball.pos.x += ball.vel.x;
     ball.pos.y += ball.vel.y;
+    // console.log('hello');
+    
+    // if(!isRoundActive){
+    //     updateBallPosWithPlayer(players, ball, state.servingPlayer);
+    //     updatePlayerPos(players[0]);
+    //     updatePlayerPos(players[1]);
+    //     // console.log('round');
+    //     return 0;
+    // }
 
     // updating players positions 
-
     updatePlayerPos(players[0]);
     updatePlayerPos(players[1]);
+
     // players tile collision
     
     if(playerOneAndBallCollision(players[0],ball) ||
     playeTworAndBallCollision(players[1],ball)){
+        // console.log('hello2');
         return 0;
     }
 
