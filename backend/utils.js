@@ -1,4 +1,4 @@
-const {GRID_X, GRID_Y, WIN_SCORE} = require('./constants');
+const {GRID_X, GRID_Y, WIN_SCORE, SPEEN_INCREMENT_FACTOR} = require('./constants');
 
 const makeId = (length) => {
 
@@ -47,7 +47,7 @@ const playerOneAndBallCollision = (player,ball) => {
         collisionPoint /= player.dimensions.height / 2;
 
         let angle= (collisionPoint * Math.PI) / 3;
-
+        ball.vel.speed += SPEEN_INCREMENT_FACTOR;    // increase speed with each collision
 
         ball.vel.y = ball.vel.speed * Math.sin(angle);
         ball.vel.x = -ball.vel.speed * Math.cos(angle);
@@ -69,7 +69,7 @@ const playeTworAndBallCollision = (player,ball) => {
         collisionPoint /= player.dimensions.height / 2;
 
         let angle= (collisionPoint * Math.PI) / 3;
-
+        ball.vel.speed += SPEEN_INCREMENT_FACTOR;  // increase speed with each collision
 
         ball.vel.y = ball.vel.speed * Math.sin(angle);
         ball.vel.x = ball.vel.speed * Math.cos(angle);
@@ -135,7 +135,7 @@ const checkGameOver = (players) => {
 }
 
 const HitBall = (ball,servingPlayer) => {
-    
+
     const random = Math.random();
 
     let angle= (random * Math.PI) / 3;
