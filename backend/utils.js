@@ -1,4 +1,4 @@
-const {GRID_X, GRID_Y, WIN_SCORE} = require('./constants');
+const {GRID_X, GRID_Y, WIN_SCORE, SPEEN_INCREMENT_FACTOR} = require('./constants');
 
 const makeId = (length) => {
 
@@ -19,17 +19,31 @@ const updatePlayerPos = (player) => {
     }
 }
 
+const updateBallPosWithPlayer = (players, ball, servingPlayer) => {
+    const player = players[servingPlayer - 1];
+    if(player.vel.y > 0 && player.pos.y + player.dimensions.height < GRID_Y){
+        ball.pos.y += player.vel.y;
+    }else if(player.vel.y < 0 && player.pos.y > 0){
+        ball.pos.y += player.vel.y;
+    }
+}
+
 const checkWallCollision = (ball) => {
-    if(ball.pos.y - ball.radius <= 0 || ball.pos.y + ball.radius >= GRID_Y){
-        ball.vel.y *= -1;
+    if(ball.pos.y - ball.radius <= 0){
+        if(ball.vel.y<=0){
+            ball.vel.y *= -1;
+        }
+    }else if(ball.pos.y + ball.radius >= GRID_Y){
+        if(ball.vel.y>=0){
+            ball.vel.y *= -1;
+        }    
     }
 }
 
 const playerOneAndBallCollision = (player,ball) => {
-
     if(
-        ball.pos.y < player.pos.y + player.dimensions.height &&
-        ball.pos.y > player.pos.y &&
+        ball.pos.y <= player.pos.y + player.dimensions.height &&
+        ball.pos.y >= player.pos.y &&
         ball.pos.x + ball.radius >= player.pos.x &&
         ball.pos.x + ball.radius < player.pos.x + player.dimensions.width
     ){
@@ -39,7 +53,7 @@ const playerOneAndBallCollision = (player,ball) => {
         collisionPoint /= player.dimensions.height / 2;
 
         let angle= (collisionPoint * Math.PI) / 3;
-
+        ball.vel.speed += SPEEN_INCREMENT_FACTOR;    // increase speed with each collision
 
         ball.vel.y = ball.vel.speed * Math.sin(angle);
         ball.vel.x = -ball.vel.speed * Math.cos(angle);
@@ -49,10 +63,9 @@ const playerOneAndBallCollision = (player,ball) => {
 }
 
 const playeTworAndBallCollision = (player,ball) => {
-
     if(
-        ball.pos.y < player.pos.y + player.dimensions.height &&
-        ball.pos.y > player.pos.y &&
+        ball.pos.y <= player.pos.y + player.dimensions.height &&
+        ball.pos.y >= player.pos.y &&
         ball.pos.x - ball.radius - player.dimensions.width <= player.pos.x &&
         ball.pos.x - ball.radius > player.pos.x
     ){
@@ -62,7 +75,7 @@ const playeTworAndBallCollision = (player,ball) => {
         collisionPoint /= player.dimensions.height / 2;
 
         let angle= (collisionPoint * Math.PI) / 3;
-
+        ball.vel.speed += SPEEN_INCREMENT_FACTOR;  // increase speed with each collision
 
         ball.vel.y = ball.vel.speed * Math.sin(angle);
         ball.vel.x = ball.vel.speed * Math.cos(angle);
@@ -75,20 +88,46 @@ const checkRoundOver = (state) => {
 
     const {players, ball} = state;
     
-    if(ball.pos.x + players[0].dimensions.width + ball.radius >= GRID_X){
+    if(ball.pos.x + players[0].dimensions.width + ball.radius >= GRID_X){ 
+        state.isRoundActive = false;
+
+        players[0].pos.x = GRID_X - players[0].dimensions.width;
+        players[0].pos.y = 30 - players[0].dimensions.height/2;
+        players[0].vel.x = 0;
+        players[0].vel.y = 0;
+    
+        players[1].pos.x = 0;
+        players[1].pos.y = 30 - players[1].dimensions.height/2;
+        players[1].vel.x = 0;
+        players[1].vel.y = 0;
+
         players[1].score = players[1].score + 1;
-        ball.pos.x = 50;
+        ball.pos.x = GRID_X - ball.radius - players[0].dimensions.width;
         ball.pos.y = 30;
-        ball.vel.x = 0.5;
-        ball.vel.y = 0.5;
+        ball.vel.x = 0;
+        ball.vel.y = 0;
         ball.vel.speed = 0.7071;
+        state.servingPlayer = 1;
     }else if(ball.pos.x - players[0].dimensions.width - ball.radius <= 0){
+        state.isRoundActive = false;
+
+        players[0].pos.x = GRID_X - players[0].dimensions.width;
+        players[0].pos.y = 30 - players[0].dimensions.height/2;
+        players[0].vel.x = 0;
+        players[0].vel.y = 0;
+    
+        players[1].pos.x = 0;
+        players[1].pos.y = 30 - players[1].dimensions.height/2;
+        players[1].vel.x = 0;
+        players[1].vel.y = 0;
+
         players[0].score = players[0].score + 1;
-        ball.pos.x = 50;
+        ball.pos.x = 0 + ball.radius + players[0].dimensions.width;;
         ball.pos.y = 30;
-        ball.vel.x = 0.5;
-        ball.vel.y = 0.5;
+        ball.vel.x = 0;
+        ball.vel.y = 0;
         ball.vel.speed = 0.7071;
+        state.servingPlayer = 2;
     }
 }
 
@@ -99,14 +138,32 @@ const checkGameOver = (players) => {
     }else if(players[1].score == WIN_SCORE){
         return 2;
     }
+    return null;
+}
+
+const HitBall = (ball,servingPlayer) => {
+
+    const random = Math.random();
+
+    let angle= (random * Math.PI) / 3;
+    
+    if(servingPlayer == 2){
+        ball.vel.y = ball.vel.speed * Math.sin(angle);
+        ball.vel.x = ball.vel.speed * Math.cos(angle);
+    }else if(servingPlayer == 1){
+        ball.vel.y = ball.vel.speed * Math.sin(angle);
+        ball.vel.x = - ball.vel.speed * Math.cos(angle);
+    }
 }
 
 module.exports = {
     makeId,
     updatePlayerPos,
+    updateBallPosWithPlayer,
     checkWallCollision,
     playerOneAndBallCollision,
     playeTworAndBallCollision,
     checkRoundOver,
     checkGameOver,
+    HitBall,
 }

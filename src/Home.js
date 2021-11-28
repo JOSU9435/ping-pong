@@ -54,7 +54,7 @@ const Home = ({socket,init}) => {
                     value = {gameCode}
                     placeholder = "Enter Game code"
                     required
-                    id="gameCode"
+                    id="gameCodeForm"
                     onChange = {(e) => setGameCode(e.target.value)}
                 />
                 <button  id = "joinGameButton">JOIN GAME</button>

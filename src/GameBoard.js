@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Home from "./Home";
+import GameOver from "./GameOver";
 import ScoreBoard from "./ScoreBoard";
 
+// connection to server
+const socket=io('http://localhost:4000');
 const GameBoard = () => {
 
     const GB_COLOR='#9A8C98';
@@ -12,78 +15,85 @@ const GameBoard = () => {
 
     const [gameStart,setGameStart] = useState(false);
     const [gameCode,setGameCode] = useState('');
-    const [playersState,setPlayerState] = useState(null);
+    const [gameOverResult, setGameOverResult] = useState('');
+    const [playerNames,setPlayerNames] = useState(null);
+    const [playerScores,setPlayerScores] = useState({
+        one: 0,
+        two: 0,
+    });
     
-    let gamebegin=false;
-    let playerNum;
+    const playerNum = useRef(null);
 
-    // connection to server
-    const socket=io('http://localhost:4000');
+    let gamebegin=false;
+    let isPlayerNameStored=false;
+    let playerOneScore=0;
+    let playerTwoScore=0;
 
     // state of the current game
-    const gameState = {
-        players:[{
-            pos: {
-                x: 98.5,
-                y: 30,
-            },
-            vel: {
-                y: 0,
-            },
-            dimensions: {
-                width: 1.5,
-                height: 15,
-            },
-            name: '',
-        },
-        {
-            pos: {
-                x: 0,
-                y: 30,
-            },
-            vel: {
-                y: 0,
-            },
-            dimensions: {
-                width: 1.5,
-                height: 15,
-            },
-            name: '',
-        }],
+    // const gameState = {
+    //     players:[{
+    //         pos: {
+    //             x: 98.5,
+    //             y: 30,
+    //         },
+    //         vel: {
+    //             y: 0,
+    //         },
+    //         dimensions: {
+    //             width: 1.5,
+    //             height: 15,
+    //         },
+    //         name: '',
+    //     },
+    //     {
+    //         pos: {
+    //             x: 0,
+    //             y: 30,
+    //         },
+    //         vel: {
+    //             y: 0,
+    //         },
+    //         dimensions: {
+    //             width: 1.5,
+    //             height: 15,
+    //         },
+    //         name: '',
+    //     }],
 
-        ball: {
-            pos:{
-                x: 50,
-                y: 30,
-            },
-            vel:{
-                x: 0.5,
-                y: 0,
-                speed: 0.7071,
-            },
-            radius: 1,
-        },
+    //     ball: {
+    //         pos:{
+    //             x: 50,
+    //             y: 30,
+    //         },
+    //         vel:{
+    //             x: 0.5,
+    //             y: 0,
+    //             speed: 0.7071,
+    //         },
+    //         radius: 1,
+    //     },
         
-        gridX: 100,
-        gridY: 60,
-    }
+    //     gridX: 100,
+    //     gridY: 60,
+    // }
 
     const canvasRef=useRef(null);
     const contextRef=useRef(null);
 
     const init=() => {
         setGameStart(true);
+        setGameOverResult('');
         const canvas=canvasRef.current;
         canvas.height=600;
         canvas.width=1000;
-        canvas.style.width='1000px';
-        canvas.style.height='600px';
+
+        const oneUnit = canvas.width/100;
         
         const context=canvas.getContext('2d');
         context.fillStyle=GB_COLOR;
         context.fillRect(0,0,canvas.width,canvas.height);
         context.fillStyle='white';
-        context.fillRect(495,0,10,canvas.height);
+        context.fillRect(oneUnit*49.5,0,1*oneUnit,canvas.height);
         contextRef.current=context;
         
         gamebegin=true;
@@ -100,7 +110,7 @@ const GameBoard = () => {
 
     // sending key input to server;
     document.addEventListener('keydown',(e) => {
-        if(e.keyCode==38 || e.keyCode==40){
+        if(e.keyCode==38 || e.keyCode==40 || e.keyCode == 32){
             socket.emit('keydown',e.keyCode);
         }
     });
@@ -132,9 +142,22 @@ const GameBoard = () => {
         renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
         renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
         
-        // if(!playersState){
-            setPlayerState(players);
-        // }
+        if(!isPlayerNameStored){
+            setPlayerNames({
+                one: players[0].name,
+                two: players[1].name,
+            });
+            isPlayerNameStored = true;
+        }
+
+        if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
+            setPlayerScores({
+                one: players[0].score,
+                two: players[1].score,
+            });
+            playerOneScore = players[0].score;
+            playerTwoScore = players[1].score;
+        }
     }
 
     const renderPlayer = (player, oneUnit, colour) => {
@@ -147,7 +170,7 @@ const GameBoard = () => {
     }
 
     const handleInit = (num) => {
-        playerNum=num;
+        playerNum.current=num;
     }
 
     const handleGameState = (gameState) => {
@@ -161,12 +184,11 @@ const GameBoard = () => {
 
         if(!gamebegin){
             return;
-        }
-
-        if(playerNum==win){
-            alert('you win');
+        }   
+        if(playerNum.current==win){
+            setGameOverResult('YOU WIN');
         }else{
-            alert('you lose');
+            setGameOverResult('YOU LOSE');
         }
         reset();
     }
@@ -185,6 +207,15 @@ const GameBoard = () => {
         alert('game is full');
     }
 
+    const handlePlayerLeft = () => {
+        reset();
+        alert('oponent left refrese the page');
+    }
+
+    const handleRematch = () => {
+        init();
+    }
+
     // listening to server for data
     socket.on('init',handleInit);
     socket.on('gameState', handleGameState);
@@ -192,14 +223,17 @@ const GameBoard = () => {
     socket.on('gameCode', handleGameCode);
     socket.on('unknownGame', handleUnknownGame);
     socket.on('fullGame', handleFullGame);
+    socket.on('playerLeft',handlePlayerLeft);
+    socket.on('rematch',handleRematch);
 
     return (
         <div>
-            <ScoreBoard playersState = {playersState}/>
+            {gameStart && <ScoreBoard playerNames = {playerNames} playerScores = {playerScores}/>}
             <div id="gameBoard">
                 {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
                 <canvas ref={canvasRef}></canvas>
             </div>
+            {gameOverResult && <GameOver gameOverResult = {gameOverResult} socket = {socket}/>}
             {!gameStart && <Home socket={socket} init={init}/>}
         </div>
     );

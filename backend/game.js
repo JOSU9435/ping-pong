@@ -1,5 +1,5 @@
 const {GRID_X, GRID_Y} = require('./constants');
-const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver} = require('./utils');
+const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver, updateBallPosWithPlayer} = require('./utils');
 
 const createGameState = () => {
 
@@ -7,7 +7,7 @@ const createGameState = () => {
         players: [{
             pos: {
                 x: 98.5,
-                y: 30,
+                y: 22.5,
             },
             vel: {
                 y: 0,
@@ -18,11 +18,12 @@ const createGameState = () => {
             },
             name: '',
             score: 0,
+            rematch: false,
         },
         {
             pos: {
                 x: 0,
-                y: 30,
+                y: 22.5,
             },
             vel: {
                 y: 0,
@@ -33,20 +34,22 @@ const createGameState = () => {
             },
             name: '',
             score: 0,
+            rematch: false,
         }],
         ball: {
             pos:{
-                x: 50,
+                x: 97.5,
                 y: 30,
             },
             vel:{
-                x: 0.5,
-                y: 0.5,
+                x: 0,
+                y: 0,
                 speed: 0.7071,
             },
             radius: 1,
         },
-        
+        isRoundActive: false,
+        servingPlayer: 1,
         gridX: GRID_X,
         gridY: GRID_Y,
     };
@@ -54,16 +57,25 @@ const createGameState = () => {
 
 const gameLoop = (state) => {
 
-    const {players,ball}=state;
+    const {players,ball,isRoundActive}=state;
+
+    // code to update state when round is not in progress
+    
+    if(!isRoundActive){
+        updateBallPosWithPlayer(players, ball, state.servingPlayer);
+        updatePlayerPos(players[0]);
+        updatePlayerPos(players[1]);
+        return 0;
+    }
     
     // updating ball position
     ball.pos.x += ball.vel.x;
     ball.pos.y += ball.vel.y;
 
     // updating players positions 
-
     updatePlayerPos(players[0]);
     updatePlayerPos(players[1]);
+
     // players tile collision
     
     if(playerOneAndBallCollision(players[0],ball) ||
