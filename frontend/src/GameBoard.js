@@ -55,7 +55,6 @@ const GameBoard = () => {
         const canvas = canvasRef.current;
         canvas.height=0;
         canvas.width=0;
-        // setGameCode('');
         setGameStart(false);
         gamebegin=false;
     }
