@@ -26,6 +26,17 @@
   transform: translate(-50%,-50%);
 }
 
+canvas{
+  width: 62.5rem;
+  height: 37.5rem;
+}
+
+#gameCode{
+  text-align: center;
+  margin: 1rem;
+  font-size: 1.25rem;
+}
+
 #initialScreen{
   position: absolute;
   top: 50%;
@@ -158,4 +169,62 @@ form#startGame button:hover{
 #scoreBoard > div > div{
   font-size: 2rem;
   text-align: center;
+}
+
+/* GameOver */
+
+#gameOverScreen{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 30rem;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  z-index: 2;
+}
+
+#gameOverScreen > div{
+  width: 100%;
+  /* min-height: 4rem; */
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#waiting{
+  min-height: 1rem;
+}
+
+#gameOverMessage{
+  font-size: 3rem;
+}
+
+#gameOverActions > button{
+  cursor: pointer;
+  min-height: 4rem;
+  flex-grow: 1;
+  background-color: var(--bg-primary);
+  border: 0;
+  max-width: 10rem;
+  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  transition: 0.3s;
+}
+
+#gameOverActions > button:hover{
+  background-color: var(--bg-item);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 900px) {
+  canvas{
+    width: 40rem;
+    height: 24rem;
+  }
 }

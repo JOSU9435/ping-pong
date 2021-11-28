@@ -18,6 +18,7 @@ const createGameState = () => {
             },
             name: '',
             score: 0,
+            rematch: false,
         },
         {
             pos: {
@@ -33,6 +34,7 @@ const createGameState = () => {
             },
             name: '',
             score: 0,
+            rematch: false,
         }],
         ball: {
             pos:{

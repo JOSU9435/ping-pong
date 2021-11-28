@@ -13,6 +13,41 @@ const clientRooms = {};
 
 io.on('connection', (client) => {
 
+    client.on('rematch',() => {
+
+        const roomName =  clientRooms[client.id];
+
+        if(!roomName) return;
+
+        const gameState = state[roomName];
+
+        if(!gameState) return;
+        
+        const {players} = gameState;
+        players[client.playerNo - 1].rematch = true;
+
+        const nameOne=players[0].name;
+        const nameTwo=players[1].name;
+        const room = io.sockets.adapter.rooms.get(roomName);
+
+        if(players[0].rematch && players[1].rematch && room.size==2){
+            state[roomName] = createGameState();
+            state[roomName].players[0].name=nameOne;
+            state[roomName].players[1].name=nameTwo;
+            startGameInterval(roomName);
+            io.sockets.in(roomName).emit('rematch');
+        }
+    })
+
+    client.on('disconnect',() => {
+        const roomName = clientRooms[client.id];
+
+        if(!roomName) return ;
+
+        io.sockets.in(roomName).emit('playerLeft');
+        delete state[roomName];
+    });
+
     // code for creating game
     client.on('createGame',(playerName) => {
         const roomName = makeId(6);
@@ -50,7 +85,7 @@ io.on('connection', (client) => {
         client.join(gameCode);
         client.playerNo = 2;
         state[gameCode].players[1].name = playerName;
-
+        client.emit('gameCode', gameCode);
         client.emit('init', 2);
         
         startGameInterval(gameCode);
@@ -64,6 +99,10 @@ io.on('connection', (client) => {
         }
 
         const gameState = state[roomName];
+
+        if(!gameState){
+            return;
+        }
 
         if(!gameState.isRoundActive && keycode == 32){
             if(client.playerNo == gameState.servingPlayer){
@@ -92,6 +131,10 @@ io.on('connection', (client) => {
 
         const gameState = state[roomName];
 
+        if(!gameState){
+            return;
+        }
+
         if(keycode == 38 && gameState.players[client.playerNo - 1].vel.y == -1){
             gameState.players[client.playerNo - 1].vel.y=0;
         }else if(keycode == 40 && gameState.players[client.playerNo - 1].vel.y == 1){
@@ -111,11 +154,16 @@ const emitGameOver = (roomName, win) => {
 const startGameInterval = (roomName) => {
 
     const intervalId = setInterval(() => {
+        if(!state[roomName]){
+            clearInterval(intervalId);
+            return;
+        }
         const win = gameLoop(state[roomName]);
         
         if(win){
             emitGameOver(roomName,win);
-            state[roomName] = null;
+            // state[roomName] = null;
+            // delete state[roomName];
             clearInterval(intervalId);
         }else{
             emitGameState(roomName,state[roomName]);

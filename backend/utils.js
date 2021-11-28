@@ -29,8 +29,14 @@ const updateBallPosWithPlayer = (players, ball, servingPlayer) => {
 }
 
 const checkWallCollision = (ball) => {
-    if(ball.pos.y - ball.radius <= 0 || ball.pos.y + ball.radius >= GRID_Y){
-        ball.vel.y *= -1;
+    if(ball.pos.y - ball.radius <= 0){
+        if(ball.vel.y<=0){
+            ball.vel.y *= -1;
+        }
+    }else if(ball.pos.y + ball.radius >= GRID_Y){
+        if(ball.vel.y>=0){
+            ball.vel.y *= -1;
+        }    
     }
 }
 
@@ -132,6 +138,7 @@ const checkGameOver = (players) => {
     }else if(players[1].score == WIN_SCORE){
         return 2;
     }
+    return null;
 }
 
 const HitBall = (ball,servingPlayer) => {
