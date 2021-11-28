@@ -162,8 +162,6 @@ const startGameInterval = (roomName) => {
         
         if(win){
             emitGameOver(roomName,win);
-            // state[roomName] = null;
-            // delete state[roomName];
             clearInterval(intervalId);
         }else{
             emitGameState(roomName,state[roomName]);

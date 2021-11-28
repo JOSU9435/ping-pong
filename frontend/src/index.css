@@ -156,7 +156,6 @@ form#startGame button:hover{
 }
 
 #scoreBoard > div{
-  background-color: var(--bg-secondary);
   height: 8rem;
   min-width: 12rem;
   display: flex;
@@ -164,6 +163,7 @@ form#startGame button:hover{
   justify-content: space-evenly;
   align-items: center;
   border-radius: 0.5rem;
+  border: solid 0.25rem var(--text-secondary);
 }
 
 #scoreBoard > div > div{
