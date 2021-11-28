@@ -29,54 +29,6 @@ const GameBoard = () => {
     let playerOneScore=0;
     let playerTwoScore=0;
 
-    // state of the current game
-    // const gameState = {
-    //     players:[{
-    //         pos: {
-    //             x: 98.5,
-    //             y: 30,
-    //         },
-    //         vel: {
-    //             y: 0,
-    //         },
-    //         dimensions: {
-    //             width: 1.5,
-    //             height: 15,
-    //         },
-    //         name: '',
-    //     },
-    //     {
-    //         pos: {
-    //             x: 0,
-    //             y: 30,
-    //         },
-    //         vel: {
-    //             y: 0,
-    //         },
-    //         dimensions: {
-    //             width: 1.5,
-    //             height: 15,
-    //         },
-    //         name: '',
-    //     }],
-
-    //     ball: {
-    //         pos:{
-    //             x: 50,
-    //             y: 30,
-    //         },
-    //         vel:{
-    //             x: 0.5,
-    //             y: 0,
-    //             speed: 0.7071,
-    //         },
-    //         radius: 1,
-    //     },
-        
-    //     gridX: 100,
-    //     gridY: 60,
-    // }
-
     const canvasRef=useRef(null);
     const contextRef=useRef(null);
 
