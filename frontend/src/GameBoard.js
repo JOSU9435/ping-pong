@@ -160,7 +160,7 @@ const GameBoard = () => {
 
     const handlePlayerLeft = () => {
         reset();
-        alert('oponent left refrese the page');
+        alert('player left refresh the page');
     }
 
     const handleRematch = () => {
