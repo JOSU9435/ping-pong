@@ -170,4 +170,4 @@ const startGameInterval = (roomName) => {
     }, 1000/FRAME_RATE);
 }
 
-io.listen(4000);
+io.listen(process.env.PORT || 4000);

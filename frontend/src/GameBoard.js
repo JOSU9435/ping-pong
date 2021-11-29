@@ -5,7 +5,7 @@ import GameOver from "./GameOver";
 import ScoreBoard from "./ScoreBoard";
 
 // connection to server
-const socket=io('http://localhost:4000');
+const socket=io('https://immense-anchorage-52015.herokuapp.com/');
 const GameBoard = () => {
 
     const GB_COLOR='#9A8C98';
