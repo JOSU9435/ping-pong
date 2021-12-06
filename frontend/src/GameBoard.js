@@ -23,19 +23,23 @@ const GameBoard = () => {
     });
     
     const playerNum = useRef(null);
+    const canvasRef=useRef(null);
+    const contextRef=useRef(null);
+    const gameBegin=useRef(false);
 
     let gamebegin=false;
     let isPlayerNameStored=false;
     let playerOneScore=0;
     let playerTwoScore=0;
 
-    const canvasRef=useRef(null);
-    const contextRef=useRef(null);
 
     const init=() => {
         setGameStart(true);
         setGameOverResult('');
         const canvas=canvasRef.current;
+
+        if(!canvas) return;
+
         canvas.height=600;
         canvas.width=1000;
 
@@ -48,15 +52,20 @@ const GameBoard = () => {
         context.fillRect(oneUnit*49.5,0,1*oneUnit,canvas.height);
         contextRef.current=context;
         
-        gamebegin=true;
+        gameBegin.current=true;
+        gamebegin=gameBegin.current;
     }
 
     const reset = () => {
         const canvas = canvasRef.current;
+        if(!canvas){
+            return ;
+        }
         canvas.height=0;
         canvas.width=0;
         setGameStart(false);
-        gamebegin=false;
+        gameBegin.current=false;
+        gamebegin=gameBegin.current;
     }
 
     // sending key input to server;
@@ -132,8 +141,7 @@ const GameBoard = () => {
     }
 
     const handleGameOver = (win) => {
-
-        if(!gamebegin){
+        if(!gameBegin.current){
             return;
         }   
         if(playerNum.current==win){
@@ -154,8 +162,8 @@ const GameBoard = () => {
     }
 
     const handleFullGame = () => {
-        reset();
         alert('game is full');
+        reset();
     }
 
     const handlePlayerLeft = () => {
@@ -168,14 +176,14 @@ const GameBoard = () => {
     }
 
     // listening to server for data
-    socket.on('init',handleInit);
+    socket.off('init').on('init',handleInit);
     socket.on('gameState', handleGameState);
-    socket.on('gameOver', handleGameOver);
-    socket.on('gameCode', handleGameCode);
-    socket.on('unknownGame', handleUnknownGame);
-    socket.on('fullGame', handleFullGame);
-    socket.on('playerLeft',handlePlayerLeft);
-    socket.on('rematch',handleRematch);
+    socket.off('gameOver').on('gameOver', handleGameOver);
+    socket.off('gameCode').on('gameCode', handleGameCode);
+    socket.off('unknownGame').on('unknownGame', handleUnknownGame);
+    socket.off('fullGame').on('fullGame', handleFullGame);
+    socket.off('playerLeft').on('playerLeft',handlePlayerLeft);
+    socket.off('rematch').on('rematch',handleRematch);
 
     return (
         <div>
