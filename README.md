@@ -1,1 +1,1 @@
-[click to play ping pong](https://upbeat-northcutt-6ddf75.netlify.app/).
+[click to play ping pong](https://ping-pong-josu.netlify.app/).
