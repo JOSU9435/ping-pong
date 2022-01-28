@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import Home from "./Home";
 import GameOver from "./GameOver";
 import ScoreBoard from "./ScoreBoard";
+import {CopyToClipboard} from "react-copy-to-clipboard";
 
 // connection to server
 const socket=io('https://immense-anchorage-52015.herokuapp.com/');
@@ -17,6 +18,7 @@ const GameBoard = () => {
     const [gameCode,setGameCode] = useState('');
     const [gameOverResult, setGameOverResult] = useState('');
     const [playerNames,setPlayerNames] = useState(null);
+    const [gameCodeHoverMsg,setGameCodeHoverMsg]  = useState('copy to clipboard');
     const [playerScores,setPlayerScores] = useState({
         one: 0,
         two: 0,
@@ -31,7 +33,16 @@ const GameBoard = () => {
     let isPlayerNameStored=false;
     let playerOneScore=0;
     let playerTwoScore=0;
+    
+    const handleCopyToClipBoard = () => {
+        setGameCodeHoverMsg('copied');
+    }
 
+    const resetGameCodeHoverMsg = () => {
+        setTimeout(() => {
+            setGameCodeHoverMsg('copy to clipboard');
+        }, 200);
+    }
 
     const init=() => {
         setGameStart(true);
@@ -189,7 +200,11 @@ const GameBoard = () => {
         <div>
             {gameStart && <ScoreBoard playerNames = {playerNames} playerScores = {playerScores}/>}
             <div id="gameBoard">
-                {gameStart && <h1 id = "gameCode">GAMECODE : {gameCode}</h1>}
+                {gameStart && <div id = "gameCodeContainer">
+                    <CopyToClipboard text={gameCode}>
+                        <h1 onMouseOut={resetGameCodeHoverMsg} onClick={handleCopyToClipBoard} id = "gameCode" data-tooltip = {gameCodeHoverMsg}>GAMECODE : {gameCode}</h1>
+                    </CopyToClipboard>
+                </div>}
                 <canvas ref={canvasRef}></canvas>
             </div>
             {gameOverResult && <GameOver gameOverResult = {gameOverResult} socket = {socket}/>}
