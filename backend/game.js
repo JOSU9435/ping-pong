@@ -100,10 +100,10 @@ const gameLoop = (state) => {
     return 0;
 }
 
-const getUpdatedVelocity = (keycode) => {
-    if(keycode==38){
+const getUpdatedVelocity = (key) => {
+    if(key=='ArrowUp'){
         return -1;
-    }else if(keycode==40){
+    }else if(key=='ArrowDown'){
         return 1;
     }
     return 0;

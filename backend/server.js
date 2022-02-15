@@ -92,7 +92,7 @@ io.on('connection', (client) => {
         startGameInterval(gameCode);
     });
 
-    client.on('keydown',(keycode) => {
+    client.on('keydown',(key) => {
         const roomName = clientRooms[client.id];
 
         if(!roomName){
@@ -105,7 +105,7 @@ io.on('connection', (client) => {
             return;
         }
 
-        if(!gameState.isRoundActive && keycode == 32){
+        if(!gameState.isRoundActive && key == ' '){
             if(client.playerNo == gameState.servingPlayer){
                 HitBall(gameState.ball, gameState.servingPlayer);
                 gameState.isRoundActive = true;
@@ -114,8 +114,8 @@ io.on('connection', (client) => {
             return;
         }
 
-        if(keycode){
-            const velocity=getUpdatedVelocity(keycode);
+        if(key){
+            const velocity=getUpdatedVelocity(key);
 
             if(velocity){
                 gameState.players[client.playerNo - 1].vel.y=velocity;
@@ -123,7 +123,7 @@ io.on('connection', (client) => {
         }
     });
 
-    client.on('keyup',(keycode) => {
+    client.on('keyup',(key) => {
         const roomName = clientRooms[client.id];
 
         if(! roomName){
@@ -136,9 +136,9 @@ io.on('connection', (client) => {
             return;
         }
 
-        if(keycode == 38 && gameState.players[client.playerNo - 1].vel.y == -1){
+        if(key == 'ArrowUp' && gameState.players[client.playerNo - 1].vel.y == -1){
             gameState.players[client.playerNo - 1].vel.y=0;
-        }else if(keycode == 40 && gameState.players[client.playerNo - 1].vel.y == 1){
+        }else if(key == 'ArrowDown' && gameState.players[client.playerNo - 1].vel.y == 1){
             gameState.players[client.playerNo - 1].vel.y=0;
         }
     });    
