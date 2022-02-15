@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Home from "./Home";
 import GameOver from "./GameOver";
@@ -6,7 +6,7 @@ import ScoreBoard from "./ScoreBoard";
 import {CopyToClipboard} from "react-copy-to-clipboard";
 
 // connection to server
-const socket=io('https://immense-anchorage-52015.herokuapp.com/');
+const socket=io(process.env.REACT_APP_BACKEND || 'http://localhost:4000/');
 const GameBoard = () => {
 
     const GB_COLOR='#9A8C98';
@@ -81,14 +81,14 @@ const GameBoard = () => {
 
     // sending key input to server;
     document.addEventListener('keydown',(e) => {
-        if(e.keyCode==38 || e.keyCode==40 || e.keyCode == 32){
-            socket.emit('keydown',e.keyCode);
+        if(e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' '){
+            socket.emit('keydown',e.key);
         }
     });
 
     document.addEventListener('keyup',(e) => {
-        if(e.keyCode==38 || e.keyCode==40){
-            socket.emit('keyup',e.keyCode);
+        if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
+            socket.emit('keyup',e.key);
         }
     });
 
@@ -99,7 +99,7 @@ const GameBoard = () => {
         context.fillStyle=GB_COLOR;
         context.fillRect(0,0,canvas.width,canvas.height);
         
-        const {players,ball,gridX,gridY} = state;
+        const {players,ball,gridX} = state;
         const oneUnit=canvas.width/gridX;
 
         context.fillStyle='white';
@@ -155,7 +155,7 @@ const GameBoard = () => {
         if(!gameBegin.current){
             return;
         }   
-        if(playerNum.current==win){
+        if(playerNum.current===win){
             setGameOverResult('YOU WIN');
         }else{
             setGameOverResult('YOU LOSE');
