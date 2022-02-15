@@ -45,6 +45,7 @@ io.on('connection', (client) => {
         if(!roomName) return ;
 
         io.sockets.in(roomName).emit('playerLeft');
+        delete clientRooms[client.id];
         delete state[roomName];
     });
 
