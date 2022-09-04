@@ -199,6 +199,8 @@ const GameBoard = () => {
                 console.error(err);
                 reset();
                 alert("Cannot connect to Server");
+            }else{
+                console.log("udp connected");
             }
         });
 
