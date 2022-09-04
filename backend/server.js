@@ -1,12 +1,17 @@
-const io=require('socket.io')({
+import { createServer } from "http"; 
+import { Server } from "socket.io";
+import { geckos } from "@geckos.io/server";
+
+import {createGameState, gameLoop, getUpdatedVelocity} from './game.js';
+import {FRAME_RATE, GRID_X} from './constants.js';
+import {makeId, HitBall} from './utils.js';
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
     cors: {
-        origin: '*',
+        origin: "*",
     }
 });
-
-const {createGameState, gameLoop, getUpdatedVelocity} = require('./game');
-const {FRAME_RATE, GRID_X} = require('./constants');
-const {makeId, HitBall} = require('./utils');
 
 const state = {};
 const clientRooms = {};
@@ -171,4 +176,4 @@ const startGameInterval = (roomName) => {
     }, 1000/FRAME_RATE);
 }
 
-io.listen(process.env.PORT || 4000);
+httpServer.listen(process.env.PORT || 4000);

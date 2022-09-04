@@ -121,7 +121,7 @@ const GameBoard = () => {
             isPlayerNameStored = true;
         }
 
-        if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
+        if(playerOneScore !== players[0].score || playerTwoScore !== players[1].score){
             setPlayerScores({
                 one: players[0].score,
                 two: players[1].score,
