@@ -10,7 +10,7 @@ import geckos from "@geckos.io/client";
 const socket=io(process.env.REACT_APP_BACKEND || 'http://localhost:4000/');
 const channel=geckos({
     url: process.env.REACT_APP_BACKEND || 'http://localhost:4000/',
-    port: null,
+    port: process.env.REACT_APP_GECKOS_PORT || null,
 })
 
 const GameBoard = () => {
