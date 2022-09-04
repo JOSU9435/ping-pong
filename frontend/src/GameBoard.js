@@ -1,12 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Home from "./Home";
 import GameOver from "./GameOver";
 import ScoreBoard from "./ScoreBoard";
 import {CopyToClipboard} from "react-copy-to-clipboard";
+import geckos from "@geckos.io/client";
 
 // connection to server
 const socket=io(process.env.REACT_APP_BACKEND || 'http://localhost:4000/');
+const channel=geckos({
+    url: process.env.REACT_APP_BACKEND || 'http://localhost:4000/',
+    port: null,
+})
+
 const GameBoard = () => {
 
     const GB_COLOR='#9A8C98';
@@ -121,7 +127,7 @@ const GameBoard = () => {
             isPlayerNameStored = true;
         }
 
-        if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
+        if(playerOneScore !== players[0].score || playerTwoScore !== players[1].score){
             setPlayerScores({
                 one: players[0].score,
                 two: players[1].score,
@@ -164,6 +170,7 @@ const GameBoard = () => {
     }
 
     const handleGameCode = (code) => {
+        channel.emit("joinRoom", code);
         setGameCode(code);
     }
 
@@ -186,15 +193,32 @@ const GameBoard = () => {
         init();
     }
 
+    useEffect(() => {
+        channel.onConnect((err) => {
+            if(err){
+                console.error(err);
+                reset();
+                alert("Cannot connect to Server");
+            }
+        });
+
+        channel.on("gameState", handleGameState);
+
+    },[channel])
+
+    useEffect(() => {
+        socket.on('init',handleInit);
+        // socket.on('gameState', handleGameState);
+        socket.on('gameOver', handleGameOver);
+        socket.on('gameCode', handleGameCode);
+        socket.on('unknownGame', handleUnknownGame);
+        socket.on('fullGame', handleFullGame);
+        socket.on('playerLeft',handlePlayerLeft);
+        socket.on('rematch',handleRematch);
+    },[socket])
+    
+
     // listening to server for data
-    socket.off('init').on('init',handleInit);
-    socket.on('gameState', handleGameState);
-    socket.off('gameOver').on('gameOver', handleGameOver);
-    socket.off('gameCode').on('gameCode', handleGameCode);
-    socket.off('unknownGame').on('unknownGame', handleUnknownGame);
-    socket.off('fullGame').on('fullGame', handleFullGame);
-    socket.off('playerLeft').on('playerLeft',handlePlayerLeft);
-    socket.off('rematch').on('rematch',handleRematch);
 
     return (
         <div>

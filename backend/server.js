@@ -1,12 +1,32 @@
-const io=require('socket.io')({
+import { createServer } from "http"; 
+import { Server } from "socket.io";
+import { geckos } from "@geckos.io/server";
+
+import {createGameState, gameLoop, getUpdatedVelocity} from './game.js';
+import {FRAME_RATE, GRID_X} from './constants.js';
+import {makeId, HitBall} from './utils.js';
+
+const httpServer = createServer();
+const io = new Server(httpServer, {
     cors: {
-        origin: '*',
+        origin: "*",
     }
 });
 
-const {createGameState, gameLoop, getUpdatedVelocity} = require('./game');
-const {FRAME_RATE, GRID_X} = require('./constants');
-const {makeId, HitBall} = require('./utils');
+const geckosIo = geckos();
+
+geckosIo.addServer(httpServer);
+
+geckosIo.onConnection((channel) => {
+    
+    channel.on("joinRoom", (code) => {
+        channel.join(code);
+    })
+
+    channel.onDisconnect(() => {
+        channel.leave();
+    })
+})
 
 const state = {};
 const clientRooms = {};
@@ -145,7 +165,8 @@ io.on('connection', (client) => {
 });
 
 const emitGameState = (roomName,state) => {
-    io.sockets.in(roomName).emit('gameState', state);
+    // io.sockets.in(roomName).emit('gameState', state);
+    geckosIo.room(roomName).emit("gameState", state);
 }
 
 const emitGameOver = (roomName, win) => {
@@ -171,4 +192,4 @@ const startGameInterval = (roomName) => {
     }, 1000/FRAME_RATE);
 }
 
-io.listen(process.env.PORT || 4000);
+httpServer.listen(process.env.PORT || 4000);
