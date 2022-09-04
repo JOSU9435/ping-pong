@@ -13,6 +13,21 @@ const io = new Server(httpServer, {
     }
 });
 
+const geckosIo = geckos();
+
+geckosIo.addServer(httpServer);
+
+geckosIo.onConnection((channel) => {
+    
+    channel.on("joinRoom", (code) => {
+        channel.join(code);
+    })
+
+    channel.onDisconnect(() => {
+        channel.leave();
+    })
+})
+
 const state = {};
 const clientRooms = {};
 
@@ -150,7 +165,8 @@ io.on('connection', (client) => {
 });
 
 const emitGameState = (roomName,state) => {
-    io.sockets.in(roomName).emit('gameState', state);
+    // io.sockets.in(roomName).emit('gameState', state);
+    geckosIo.room(roomName).emit("gameState", state);
 }
 
 const emitGameOver = (roomName, win) => {
