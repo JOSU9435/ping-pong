@@ -15,14 +15,14 @@ const io = new Server(httpServer, {
 
 const geckosIo = geckos({
     cors: {
-        allowAuthorization: true,
+        origin: "*",
     }
 });
 
 geckosIo.addServer(httpServer);
 
 geckosIo.onConnection((channel) => {
-    
+    console.log("udp connection");
     channel.on("joinRoom", (code) => {
         channel.join(code);
     })
