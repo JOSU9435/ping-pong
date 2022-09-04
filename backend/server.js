@@ -13,7 +13,11 @@ const io = new Server(httpServer, {
     }
 });
 
-const geckosIo = geckos();
+const geckosIo = geckos({
+    cors: {
+        allowAuthorization: true,
+    }
+});
 
 geckosIo.addServer(httpServer);
 
