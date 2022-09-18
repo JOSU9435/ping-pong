@@ -1,4 +1,4 @@
-const {GRID_X, GRID_Y, WIN_SCORE, SPEEN_INCREMENT_FACTOR} = require('./constants');
+import {GRID_X, GRID_Y, WIN_SCORE, SPEEN_INCREMENT_FACTOR} from './constants.js';
 
 const makeId = (length) => {
 
@@ -156,7 +156,7 @@ const HitBall = (ball,servingPlayer) => {
     }
 }
 
-module.exports = {
+export {
     makeId,
     updatePlayerPos,
     updateBallPosWithPlayer,
