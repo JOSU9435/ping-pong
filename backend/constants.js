@@ -1,10 +1,10 @@
-FRAME_RATE=100;
-GRID_X=100;
-GRID_Y=60;
-WIN_SCORE = 5;
-SPEEN_INCREMENT_FACTOR = 0.04;
+const FRAME_RATE=100;
+const GRID_X=100;
+const GRID_Y=60;
+const WIN_SCORE = 5;
+const SPEEN_INCREMENT_FACTOR = 0.04;
 
-module.exports = {
+export {
     FRAME_RATE,
     GRID_X,
     GRID_Y,

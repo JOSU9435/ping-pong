@@ -1,5 +1,5 @@
-const {GRID_X, GRID_Y} = require('./constants');
-const {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver, updateBallPosWithPlayer} = require('./utils');
+import {GRID_X, GRID_Y} from './constants.js';
+import {checkWallCollision, updatePlayerPos, playeTworAndBallCollision, playerOneAndBallCollision, checkGameOver, checkRoundOver, updateBallPosWithPlayer} from './utils.js';
 
 const createGameState = () => {
 
@@ -109,7 +109,7 @@ const getUpdatedVelocity = (key) => {
     return 0;
 }
 
-module.exports = {
+export {
     createGameState,
     gameLoop,
     getUpdatedVelocity,
