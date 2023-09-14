@@ -4,6 +4,7 @@
   "description": "",
   "main": "constants.js",
   "scripts": {
+    "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
@@ -12,5 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "socket.io": "^4.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
