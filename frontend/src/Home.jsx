@@ -9,13 +9,13 @@ const Home = ({socket,init}) => {
 
     const handleCreateGame = (e) => {
         e.preventDefault();
-        socket.emit('createGame', playerName);
+        socket.current.emit('createGame', playerName);
         init();
     }
 
     const handleJoinGame = (e) => {
         e.preventDefault();
-        socket.emit('joinGame', {gameCode, playerName});
+        socket.current.emit('joinGame', {gameCode, playerName});
         init();
     }
 

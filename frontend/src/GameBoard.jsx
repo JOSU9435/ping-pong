@@ -1,18 +1,27 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import Home from "./Home";
 import GameOver from "./GameOver";
 import ScoreBoard from "./ScoreBoard";
 import {CopyToClipboard} from "react-copy-to-clipboard";
 
-// connection to server
-const socket=io(import.meta.env.VITE_BACKEND);
 const GameBoard = () => {
 
     const GB_COLOR='#9A8C98';
     const PLAYER_ONE_COLOR='green';
     const PLAYER_TWO_COLOR='purple';
     const BALL_COLOR='red';
+
+    const ICE_SERVERS = {
+        iceServers: [
+            {
+            urls: [
+                "stun:stun1.l.google.com:19302",
+                "stun:stun2.l.google.com:19302",
+            ],
+            },
+        ],
+    };
 
     const [gameStart,setGameStart] = useState(false);
     const [gameCode,setGameCode] = useState('');
@@ -24,6 +33,8 @@ const GameBoard = () => {
         two: 0,
     });
     
+    const socket = useRef();
+    const peerConnection = useRef(null);
     const playerNum = useRef(null);
     const canvasRef=useRef(null);
     const contextRef=useRef(null);
@@ -33,16 +44,6 @@ const GameBoard = () => {
     let isPlayerNameStored=false;
     let playerOneScore=0;
     let playerTwoScore=0;
-    
-    const handleCopyToClipBoard = () => {
-        setGameCodeHoverMsg('copied');
-    }
-
-    const resetGameCodeHoverMsg = () => {
-        setTimeout(() => {
-            setGameCodeHoverMsg('copy to clipboard');
-        }, 200);
-    }
 
     const init=() => {
         setGameStart(true);
@@ -67,134 +68,175 @@ const GameBoard = () => {
         gamebegin=gameBegin.current;
     }
 
-    const reset = () => {
-        const canvas = canvasRef.current;
-        if(!canvas){
-            return ;
+    useEffect(() => {
+        socket.current = io(import.meta.env.VITE_BACKEND);
+
+        const reset = () => {
+            const canvas = canvasRef.current;
+            if(!canvas){
+                return ;
+            }
+            canvas.height=0;
+            canvas.width=0;
+            setGameStart(false);
+            gameBegin.current=false;
+            gamebegin=gameBegin.current;
         }
-        canvas.height=0;
-        canvas.width=0;
-        setGameStart(false);
-        gameBegin.current=false;
-        gamebegin=gameBegin.current;
-    }
-
-    // sending key input to server;
-    document.addEventListener('keydown',(e) => {
-        if(e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' '){
-            socket.emit('keydown',e.key);
+    
+        const renderGame = (state) => {
+            const canvas=canvasRef.current;
+            const context=contextRef.current;
+    
+            context.fillStyle=GB_COLOR;
+            context.fillRect(0,0,canvas.width,canvas.height);
+            
+            const {players,ball,gridX} = state;
+            const oneUnit=canvas.width/gridX;
+    
+            context.fillStyle='white';
+            context.fillRect(49.5 * oneUnit,0,oneUnit,canvas.height);
+            
+            context.fillStyle=BALL_COLOR;
+            context.beginPath();
+            context.arc(ball.pos.x * oneUnit,ball.pos.y * oneUnit,ball.radius * oneUnit,0,2*Math.PI,0);
+            context.fill();
+    
+            renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
+            renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
+            
+            if(!isPlayerNameStored){
+                setPlayerNames({
+                    one: players[0].name,
+                    two: players[1].name,
+                });
+                isPlayerNameStored = true;
+            }
+    
+            if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
+                setPlayerScores({
+                    one: players[0].score,
+                    two: players[1].score,
+                });
+                playerOneScore = players[0].score;
+                playerTwoScore = players[1].score;
+            }
         }
-    });
-
-    document.addEventListener('keyup',(e) => {
-        if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
-            socket.emit('keyup',e.key);
+    
+        const renderPlayer = (player, oneUnit, colour) => {
+            const context=contextRef.current;
+    
+            const {pos, dimensions} = player;
+    
+            context.fillStyle=colour;
+            context.fillRect(pos.x * oneUnit, pos.y * oneUnit, dimensions.width * oneUnit, dimensions.height * oneUnit);
         }
-    });
+    
+        // sending key input to server;
+        document.addEventListener('keydown',(e) => {
+            if(e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === ' '){
+                socket.current.emit('keydown',e.key);
+            }
+        });
 
-    const renderGame = (state) => {
-        const canvas=canvasRef.current;
-        const context=contextRef.current;
+        document.addEventListener('keyup',(e) => {
+            if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
+                socket.current.emit('keyup',e.key);
+            }
+        });
 
-        context.fillStyle=GB_COLOR;
-        context.fillRect(0,0,canvas.width,canvas.height);
-        
-        const {players,ball,gridX} = state;
-        const oneUnit=canvas.width/gridX;
+        const handleInit = (num) => {
+            playerNum.current=num;
+        }    
 
-        context.fillStyle='white';
-        context.fillRect(49.5 * oneUnit,0,oneUnit,canvas.height);
-        
-        context.fillStyle=BALL_COLOR;
-        context.beginPath();
-        context.arc(ball.pos.x * oneUnit,ball.pos.y * oneUnit,ball.radius * oneUnit,0,2*Math.PI,0);
-        context.fill();
-
-        renderPlayer(players[0], oneUnit, PLAYER_ONE_COLOR);
-        renderPlayer(players[1], oneUnit, PLAYER_TWO_COLOR);
-        
-        if(!isPlayerNameStored){
-            setPlayerNames({
-                one: players[0].name,
-                two: players[1].name,
-            });
-            isPlayerNameStored = true;
+        const handleGameState = (gameState) => {
+            if(!gamebegin){
+                return;
+            }
+            requestAnimationFrame(() => renderGame(gameState));
+        }
+    
+        const handleGameOver = (win) => {
+            if(!gameBegin.current){
+                return;
+            }   
+            if(playerNum.current===win){
+                setGameOverResult('YOU WIN');
+            }else{
+                setGameOverResult('YOU LOSE');
+            }
+            reset();
+        }
+    
+        const handleGameCode = (code) => {
+            setGameCode(code);
         }
 
-        if(playerOneScore != players[0].score || playerTwoScore != players[1].score){
-            setPlayerScores({
-                one: players[0].score,
-                two: players[1].score,
-            });
-            playerOneScore = players[0].score;
-            playerTwoScore = players[1].score;
+        const handleUnknownGame = () => {
+            reset();
+            alert('unknown game code');
         }
-    }
 
-    const renderPlayer = (player, oneUnit, colour) => {
-        const context=contextRef.current;
-
-        const {pos, dimensions} = player;
-
-        context.fillStyle=colour;
-        context.fillRect(pos.x * oneUnit, pos.y * oneUnit, dimensions.width * oneUnit, dimensions.height * oneUnit);
-    }
-
-    const handleInit = (num) => {
-        playerNum.current=num;
-    }
-
-    const handleGameState = (gameState) => {
-        if(!gamebegin){
-            return;
+        const handleFullGame = () => {
+            alert('game is full');
+            reset();
         }
-        requestAnimationFrame(() => renderGame(gameState));
-    }
 
-    const handleGameOver = (win) => {
-        if(!gameBegin.current){
-            return;
-        }   
-        if(playerNum.current===win){
-            setGameOverResult('YOU WIN');
-        }else{
-            setGameOverResult('YOU LOSE');
+        const handlePlayerLeft = () => {
+            reset();
+            alert('player left refresh the page');
         }
-        reset();
+
+        const handleRematch = () => {
+            init();
+        }
+
+        socket.current.on('init',handleInit);
+        // socket.current.on('gameState', handleGameState);
+        socket.current.on('gameOver', handleGameOver);
+        socket.current.on('gameCode', handleGameCode);
+        socket.current.on('unknownGame', handleUnknownGame);
+        socket.current.on('fullGame', handleFullGame);
+        socket.current.on('playerLeft',handlePlayerLeft);
+        socket.current.on('rematch',handleRematch);
+
+        socket.current.on("wrtc:offer", async (offer) => {
+            peerConnection.current = new RTCPeerConnection(ICE_SERVERS);
+            await peerConnection.current.setRemoteDescription(offer);
+
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
+
+            peerConnection.current.onicecandidate = (event) => {
+                if(event.candidate){
+                    socket.current.emit("wrtc:iceCandidate", event.candidate);
+                } 
+            }
+
+            peerConnection.current.ondatachannel = (event) => {
+                const channel = event.channel;
+                channel.onmessage = async (event) => {
+                    const gameState = await JSON.parse(event.data);
+                    handleGameState(gameState);
+                }
+            }
+            socket.current.emit("wrtc:answer", answer);
+        })
+
+        socket.current.on("wrtc:iceCandidate", (candidate) => {
+            peerConnection.current.addIceCandidate(candidate);
+        })
+
+    },[])
+    
+    const handleCopyToClipBoard = () => {
+        setGameCodeHoverMsg('copied');
     }
 
-    const handleGameCode = (code) => {
-        setGameCode(code);
+    const resetGameCodeHoverMsg = () => {
+        setTimeout(() => {
+            setGameCodeHoverMsg('copy to clipboard');
+        }, 200);
     }
-
-    const handleUnknownGame = () => {
-        reset();
-        alert('unknown game code');
-    }
-
-    const handleFullGame = () => {
-        alert('game is full');
-        reset();
-    }
-
-    const handlePlayerLeft = () => {
-        reset();
-        alert('player left refresh the page');
-    }
-
-    const handleRematch = () => {
-        init();
-    }
-
-    // listening to server for data
-    socket.off('init').on('init',handleInit);
-    socket.on('gameState', handleGameState);
-    socket.off('gameOver').on('gameOver', handleGameOver);
-    socket.off('gameCode').on('gameCode', handleGameCode);
-    socket.off('unknownGame').on('unknownGame', handleUnknownGame);
-    socket.off('fullGame').on('fullGame', handleFullGame);
-    socket.off('playerLeft').on('playerLeft',handlePlayerLeft);
-    socket.off('rematch').on('rematch',handleRematch);
 
     return (
         <div>

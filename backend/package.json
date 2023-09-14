@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "socket.io": "^4.4.0"
+    "@mapbox/node-pre-gyp": "^1.0.11",
+    "socket.io": "^4.4.0",
+    "wrtc": "^0.4.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

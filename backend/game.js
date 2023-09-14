@@ -19,6 +19,8 @@ const createGameState = () => {
             name: '',
             score: 0,
             rematch: false,
+            peerConnection: null,
+            gameStateStreamDataChannel: null,
         },
         {
             pos: {
@@ -35,6 +37,8 @@ const createGameState = () => {
             name: '',
             score: 0,
             rematch: false,
+            peerConnection: null,
+            gameStateStreamDataChannel: null,
         }],
         ball: {
             pos:{
