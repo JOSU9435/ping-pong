@@ -1,0 +1,259 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+:root{
+  font-size: 16px;
+  --text-primary:#F2E9E4;
+  --text-secondary:#9A8C98;
+
+  --bg-primary: #22223B;
+  --bg-secondary:#4A4E69;
+  --bg-item:#C9ADA7;
+  
+  background-color: var(--bg-primary);
+}
+
+*{
+  margin: 0;
+  font-family: Roboto;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+#gameBoard{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+canvas{
+  width: 62.5rem;
+  height: 37.5rem;
+}
+
+#gameCodeContainer{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  font-size: 1.25rem;
+}
+
+#gameCode{
+  position: relative;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin: 0.5rem;
+}
+
+#gameCode::before{
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  white-space: nowrap;
+  transform: translate(-50%,0);
+  background-color: black;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 200;
+  border-radius: 0.2rem;
+  transition: 0.2s;
+  opacity: 0;
+}
+
+#gameCode:hover::before{
+  opacity: 0.7;
+}
+
+#initialScreen{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 30rem;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+}
+
+#tabChange{
+  height: 4rem;
+  width: 100%;
+  display: flex;
+}
+
+#tabChange *{
+  flex-grow: 1;
+  height: 100%;
+  text-align: center;
+  line-height: 4rem;
+  font-size: 1.25rem;
+  border-bottom: 0.15rem solid var(--text-secondary);
+  transition:  0.2s;
+  cursor: pointer;
+}
+
+
+.activeTabStyles{
+  color: var(--bg-primary);
+  font-weight: bold;
+  background-color: var(--text-secondary);
+}
+
+#joinGame{
+  border-radius: 0.5rem 0 0 0;
+}
+
+#createGame{
+  border-radius: 0 0.5rem 0 0;
+}
+
+#joinGame:hover{
+  background-color: var(--text-secondary);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+#createGame:hover{
+  background-color: var(--text-secondary);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+form#startGame {
+  display: flex;
+  min-width: 25rem;
+  height: 15rem;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+form#startGame label, form#startGame input, form#startGame button {
+  display: block;
+  border: 0;
+}
+
+form#startGame label{
+  padding: 0.25rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+form#startGame input{
+  font-size:  2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--bg-primary);
+  text-align: center;
+}
+
+form#startGame input:focus{
+  outline: none;
+}
+
+form#startGame input::-webkit-input-placeholder{
+  opacity: 0.7;
+  text-align: center;
+}
+
+form#startGame button{
+  cursor: pointer;
+  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  background-color: var(--bg-primary);
+  transition: 0.3s;
+}
+
+form#startGame button:hover{
+  cursor: pointer;
+  background-color: var(--bg-item);
+  color: var(--bg-primary);
+}
+
+/* SCORE BOARD */
+
+#scoreBoard{
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+}
+
+#scoreBoard > div{
+  height: 8rem;
+  min-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: solid 0.25rem var(--text-secondary);
+}
+
+#scoreBoard > div > div{
+  font-size: 2rem;
+  text-align: center;
+}
+
+/* GameOver */
+
+#gameOverScreen{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 30rem;
+  height: 20rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  z-index: 2;
+}
+
+#gameOverScreen > div{
+  width: 100%;
+  /* min-height: 4rem; */
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#waiting{
+  min-height: 1rem;
+}
+
+#gameOverMessage{
+  font-size: 3rem;
+}
+
+#gameOverActions > button{
+  cursor: pointer;
+  min-height: 4rem;
+  flex-grow: 1;
+  background-color: var(--bg-primary);
+  border: 0;
+  max-width: 10rem;
+  border-radius: 0.25rem;
+  font-size: 1.5rem;
+  transition: 0.3s;
+}
+
+#gameOverActions > button:hover{
+  background-color: var(--bg-item);
+  color: var(--bg-primary);
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 900px) {
+  canvas{
+    width: 40rem;
+    height: 24rem;
+  }
+}
