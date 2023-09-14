@@ -7,7 +7,6 @@ const io=require('socket.io')({
 const {createGameState, gameLoop, getUpdatedVelocity} = require('./game');
 const {FRAME_RATE, GRID_X} = require('./constants');
 const {makeId, HitBall} = require('./utils');
-const { offerPeerConnection } = require('./webRtc');
 
 const state = {};
 const clientRooms = {};
@@ -32,17 +31,9 @@ io.on('connection', (client) => {
         const room = io.sockets.adapter.rooms.get(roomName);
 
         if(players[0].rematch && players[1].rematch && room.size==2){
-            const player1dataChannel = state[roomName].players[0].gameStateStreamDataChannel;
-            const player2dataChannel = state[roomName].players[1].gameStateStreamDataChannel;
-            const player1PeerConnection = state[roomName].players[0].peerConnection;
-            const player2PeerConnection = state[roomName].players[1].peerConnection;
             state[roomName] = createGameState();
             state[roomName].players[0].name=nameOne;
             state[roomName].players[1].name=nameTwo;
-            state[roomName].players[0].gameStateStreamDataChannel=player1dataChannel;
-            state[roomName].players[1].gameStateStreamDataChannel=player2dataChannel;
-            state[roomName].players[0].peerConnection=player1PeerConnection;
-            state[roomName].players[1].peerConnection=player2PeerConnection;
             startGameInterval(roomName);
             io.sockets.in(roomName).emit('rematch');
         }
@@ -59,7 +50,7 @@ io.on('connection', (client) => {
     });
 
     // code for creating game
-    client.on('createGame',async (playerName) => {
+    client.on('createGame',(playerName) => {
         const roomName = makeId(6);
         clientRooms[client.id]=roomName;
         client.emit('gameCode', roomName);
@@ -68,12 +59,11 @@ io.on('connection', (client) => {
         client.join(roomName);
         client.playerNo = 1;
         state[roomName].players[0].name = playerName;
-
-        await offerPeerConnection(state[roomName].players[0], client, 1);
+        client.emit('init', 1);
     });
 
     // code for joining game
-    client.on('joinGame', async ({gameCode, playerName}) => {
+    client.on('joinGame', ({gameCode, playerName}) => {
 
         const room = io.sockets.adapter.rooms.get(gameCode);
 
@@ -97,8 +87,7 @@ io.on('connection', (client) => {
         client.playerNo = 2;
         state[gameCode].players[1].name = playerName;
         client.emit('gameCode', gameCode);
-
-        await offerPeerConnection(state[gameCode].players[1], client, 2);
+        client.emit('init', 2);
         
         startGameInterval(gameCode);
     });
@@ -155,17 +144,8 @@ io.on('connection', (client) => {
     });    
 });
 
-const emitGameState = (roomName) => {
-    
-    const {players} = state[roomName];
-
-    if(players[0].gameStateStreamDataChannel.readyState === "open") {
-        players[0].gameStateStreamDataChannel.send(JSON.stringify(state[roomName]));
-    }
-
-    if(players[1].gameStateStreamDataChannel.readyState === "open") {
-        players[1].gameStateStreamDataChannel.send(JSON.stringify(state[roomName]));
-    }
+const emitGameState = (roomName,state) => {
+    io.sockets.in(roomName).emit('gameState', state);
 }
 
 const emitGameOver = (roomName, win) => {
@@ -185,14 +165,7 @@ const startGameInterval = (roomName) => {
             emitGameOver(roomName,win);
             clearInterval(intervalId);
         }else{
-            try {
-                emitGameState(roomName);                
-            } catch (error) {
-                console.log(error.message);
-                io.sockets.in(roomName).emit('playerLeft');
-                delete clientRooms[client.id];
-                delete state[roomName];
-            }
+            emitGameState(roomName,state[roomName]);
         }
 
     }, 1000/FRAME_RATE);

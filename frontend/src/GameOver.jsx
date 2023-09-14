@@ -5,7 +5,7 @@ const GameOver = ({gameOverResult,socket}) => {
     const [isWaiting,setIsWaiting] = useState(false);
 
     const handleRematch = () => {
-        socket.current.emit('rematch');
+        socket.emit('rematch');
         setIsWaiting(true);
     }
 
