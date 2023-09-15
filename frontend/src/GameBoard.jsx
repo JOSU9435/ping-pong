@@ -12,6 +12,17 @@ const GameBoard = () => {
     const PLAYER_TWO_COLOR='purple';
     const BALL_COLOR='red';
 
+    const ICE_SERVERS = {
+        iceServers: [
+            {
+            urls: [
+                "stun:stun1.l.google.com:19302",
+                "stun:stun2.l.google.com:19302",
+            ],
+            },
+        ],
+    };
+
     const [gameStart,setGameStart] = useState(false);
     const [gameCode,setGameCode] = useState('');
     const [gameOverResult, setGameOverResult] = useState('');
@@ -23,7 +34,7 @@ const GameBoard = () => {
     });
     
     const socket = useRef();
-
+    const peerConnection = useRef(null);
     const playerNum = useRef(null);
     const canvasRef=useRef(null);
     const contextRef=useRef(null);
@@ -170,7 +181,6 @@ const GameBoard = () => {
             reset();
         }
 
-
         const handlePlayerLeft = () => {
             reset();
             alert('player left refresh the page');
@@ -181,13 +191,40 @@ const GameBoard = () => {
         }
 
         socket.current.on('init',handleInit);
-        socket.current.on('gameState', handleGameState);
+        // socket.current.on('gameState', handleGameState);
         socket.current.on('gameOver', handleGameOver);
         socket.current.on('gameCode', handleGameCode);
         socket.current.on('unknownGame', handleUnknownGame);
         socket.current.on('fullGame', handleFullGame);
         socket.current.on('playerLeft',handlePlayerLeft);
         socket.current.on('rematch',handleRematch);
+
+        socket.current.on("wrtc:offer", async (offer) => {
+            peerConnection.current = new RTCPeerConnection(ICE_SERVERS);
+            await peerConnection.current.setRemoteDescription(offer);
+
+            const answer = await peerConnection.current.createAnswer();
+            await peerConnection.current.setLocalDescription(answer);
+
+            peerConnection.current.onicecandidate = (event) => {
+                if(event.candidate){
+                    socket.current.emit("wrtc:iceCandidate", event.candidate);
+                } 
+            }
+
+            peerConnection.current.ondatachannel = (event) => {
+                const channel = event.channel;
+                channel.onmessage = async (event) => {
+                    const gameState = await JSON.parse(event.data);
+                    handleGameState(gameState);
+                }
+            }
+            socket.current.emit("wrtc:answer", answer);
+        })
+
+        socket.current.on("wrtc:iceCandidate", (candidate) => {
+            peerConnection.current.addIceCandidate(candidate);
+        })
 
     },[])
     
