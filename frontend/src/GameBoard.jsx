@@ -9,9 +9,9 @@ import {CopyToClipboard} from "react-copy-to-clipboard";
 const socket=io(import.meta.env.VITE_BACKEND);
 const GameBoard = () => {
 
-    const GB_COLOR='#9A8C98';
-    const PLAYER_ONE_COLOR='green';
-    const PLAYER_TWO_COLOR='purple';
+    const GB_COLOR='#c4c4c4';
+    const PLAYER_ONE_COLOR='#FF6F61';
+    const PLAYER_TWO_COLOR='#006288';
     const BALL_COLOR='red';
 
     const [gameStart,setGameStart] = useState(false);
