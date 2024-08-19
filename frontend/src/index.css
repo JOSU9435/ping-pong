@@ -58,17 +58,19 @@ canvas{
   left: 50%;
   white-space: nowrap;
   transform: translate(-50%,0);
-  background-color: black;
+  background-color: var(--bg-300);
   padding: 0.25rem;
   font-size: 0.9rem;
   font-weight: 200;
   border-radius: 0.2rem;
   transition: 0.2s;
   opacity: 0;
+  color: var(--text-200);
+  font-weight: 900;
 }
 
 #gameCode:hover::before{
-  opacity: 0.7;
+  opacity: 1;
 }
 
 #initialScreen{
